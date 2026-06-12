@@ -1,0 +1,28 @@
+# Keil MDK build outputs
+*.o
+*.d
+*.crf
+*.axf
+*.hex
+*.bin
+*.elf
+*.lst
+*.map
+*.iex
+*.htm
+*.build_log.htm
+*.dep
+*.plg
+*.tra
+*.sct
+*.lnp
+
+# Keil project user config (contains machine-specific paths)
+*.uvguix.*
+JLinkLog.txt
+JLinkSettings.ini
+
+# Directories
+Objects/
+Listings/
+DebugConfig/
