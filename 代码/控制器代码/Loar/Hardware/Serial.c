@@ -1,11 +1,15 @@
 #include "stm32f10x.h"                  // Device header
-#include <stdio.h>
-#include <stdarg.h>
+#include "Command_set.h"
+#include "Delay.h"
 
 uint8_t Serial_RxData;		//定义串口接收的数据变量
 uint8_t Serial_RxFlag;		//定义串口接收的标志位变量
 
-void Serial_Init()
+uint8_t Key;
+
+uint8_t SpeedA = 50, SpeedB = 50;
+
+void Serial_Init(void)//串口初始化
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2,ENABLE);
@@ -50,6 +54,29 @@ void Serial_Init()
 	NVIC_Init(&NVIC_InitStruct);
 	
 	USART_Cmd(USART2,ENABLE);
+	
+	
+	//控制按键初始化
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
+	
+	//速度B设置
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;//速度B + | -
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA,&GPIO_InitStruct);
+	
+	//速度A设置
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_15;//速度A + | -
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB,&GPIO_InitStruct);
+	
+	//电机设置
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13;//电机 ON | OFF
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB,&GPIO_InitStruct);
 }
 
 void Serial_SendByte(uint8_t Byte)//单字节发送
@@ -58,57 +85,81 @@ void Serial_SendByte(uint8_t Byte)//单字节发送
 	while(USART_GetFlagStatus(USART2,USART_FLAG_TXE) == DISABLE);
 }
 
-void Serial_SendArray(uint8_t *Array, uint16_t Length)//数组发送
+void Serial_TB_Cmd(void)//按键控制
 {
-	uint16_t i;
-	for(i = 0; i <Length; i++)
+	if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12) == SET)//电机开
 	{
-		Serial_SendByte(Array[i]);
+		Delay_ms(10);
+		while(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12) != RESET);
+		Serial_SendByte(C);
+		Serial_SendByte(MOTOR_RUN);
+		Delay_ms(10);
+		Key = 1;
 	}
-	while(USART_GetFlagStatus(USART2,USART_FLAG_TXE) == DISABLE);
-}
-
-void Serial_SendString(char *String)//字符发送
-{
-	uint16_t i;
-	for(i = 0; String[i] != '\0'; i++)
+	if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_13) == SET)//电机关
 	{
-		Serial_SendByte(String[i]);
-		while(USART_GetFlagStatus(USART2,USART_FLAG_TXE) == DISABLE);
+		Delay_ms(10);
+		while(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_13) != RESET);
+		Serial_SendByte(C);
+		Serial_SendByte(MOTOR_STOP);
+		Delay_ms(10);
+		Key = 2;
 	}
-}
-
-uint32_t Serial_Pow(uint32_t X, uint32_t Y)//次方函数
-{
-	uint32_t result = 1;
-	while(Y--)
+	if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_14) == SET)//速度A+
 	{
-		result *= X ;
+		Delay_ms(10);
+		while(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_14) != RESET);
+		if(SpeedA < 100)
+		{
+			Serial_SendByte(D);
+			SpeedA += 10;
+			Serial_SendByte(SpeedA);
+			Delay_ms(10);
+		}
+		Key = 3;
 	}
-	return result;
-}
-
-void Serial_SendNumber(uint32_t Number, uint8_t Length)//发送数字
-{
-	uint16_t i = 0;
-	for(i = 0; i < Length; i++)
+	if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_15) == SET)//速度A-
 	{
-		Serial_SendByte((Number / Serial_Pow(10,Length - i - 1)) % 10 + '0');
-		while(USART_GetFlagStatus(USART2,USART_FLAG_TXE) == DISABLE);
+		Delay_ms(10);
+		while(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_15) != RESET);
+		if(SpeedA > 0)
+		{
+			Serial_SendByte(D);
+			SpeedA = SpeedA-10;
+			Serial_SendByte(SpeedA);
+			Delay_ms(10);
+		}
+		Key = 4;
+	}
+	if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_8) == SET)//速度B+
+	{
+		Delay_ms(10);
+		while(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_8) != RESET);
+		if(SpeedB < 100)
+		{
+			Serial_SendByte(E);
+			SpeedB += 10;
+			Serial_SendByte(SpeedB);
+			Delay_ms(10);
+		}
+		Key = 5;
+	}
+	if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_9) == SET)//速度B-
+	{
+		Delay_ms(10);
+		while(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_9) != RESET);
+		if(SpeedB > 0)
+		{
+			Serial_SendByte(E);
+			SpeedB = SpeedB-10;
+			Serial_SendByte(SpeedB);
+			Delay_ms(10);
+		}
+		Key = 6;
 	}
 }
 
-void Serial_Printf(char *format, ...)
-{
-	char String[100];				//定义字符数组
-	va_list arg;					//定义可变参数列表数据类型的变量arg
-	va_start(arg, format);			//从format开始，接收参数列表到arg变量
-	vsprintf(String, format, arg);	//使用vsprintf打印格式化字符串和参数列表到字符数组中
-	va_end(arg);					//结束变量arg
-	Serial_SendString(String);		//串口发送字符数组（字符串）
-}
-
-uint8_t Serial_GetRxFlag(void)
+uint8_t Serial_GetRxFlag(void)//接收数据标志位查询
 {
 	if(Serial_RxFlag == 1)
 	{
@@ -117,13 +168,13 @@ uint8_t Serial_GetRxFlag(void)
 	return 0;
 }
 
-uint8_t Serial_GetRxReturnData(void)
+uint8_t Serial_GetRxReturnData(void)//返回串口接收到的数据
 {
 	Serial_RxFlag = 0;
 	return Serial_RxData;
 }
 
-void USART2_IRQHandler(void)//中断接收数据
+void USART2_IRQHandler(void)//串口2中断接收数据
 {
 	if(USART_GetITStatus(USART2,USART_IT_RXNE) == SET)
 	{

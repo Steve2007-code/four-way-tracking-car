@@ -7,16 +7,16 @@
 int main()
 {
 	OLED_Init();
-	//TB_PWM_Init();
-	//TB_B_Rotation_Direction(MOTOR_left);
-	//TB_AOx_Cmd(MOTOR_RUN);
+	TB_PWM_Init();
+	TB_B_Rotation_Direction(MOTOR_left);
+	TB_A_Rotation_Direction(MOTOR_left);
+	TB_AOx_Cmd(MOTOR_STOP);
 	Lora_Init();
 	
 	while(1)
 	{
 		OLED_ShowString(1,1,"Hello Word!");
-		OLED_ShowHexNum(2,1,LoraData[0],2);
-		OLED_ShowHexNum(2,4,LoraData[1],2);
-		OLED_ShowHexNum(2,7,LoraData[2],2);
+		OLED_ShowNum(2,1,LoraFunction,2);
+		OLED_ShowNum(2,4,LoraFunctionSet,2);
 	}
 }

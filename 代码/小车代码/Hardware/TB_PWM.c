@@ -49,14 +49,14 @@ void TB_PWM_Init(void)//TB6612初始化
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = CCRB;//CCRB
+	TIM_OCInitStruct.TIM_Pulse = 40;//CCRB
 	TIM_OC1Init(TIM1,&TIM_OCInitStruct);//CH1配置(PWMB)
 	
 	TIM_OCInitStruct.TIM_OCIdleState = TIM_OCIdleState_Reset;//空闲时低电平
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = CCRA;//CCRA
+	TIM_OCInitStruct.TIM_Pulse = 40;//CCRA
 	TIM_OC2Init(TIM1,&TIM_OCInitStruct);//CH2配置(PWMA)
 	
 	TIM_CtrlPWMOutputs(TIM1, ENABLE);//使能TIM1外设的主输出
@@ -88,18 +88,18 @@ void TB_A_Rotation_Direction(uint8_t MOTOR_RotationState)
 {
 	if(MOTOR_RotationState == 0)//顺时针
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_SET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_2,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_4,Bit_SET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_5,Bit_RESET);
 	}
 	else if(MOTOR_RotationState == 1)//逆时针
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_RESET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_2,Bit_SET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_4,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_5,Bit_SET);
 	}
 	else if(MOTOR_RotationState == 2)//停止
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_RESET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_2,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_4,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_5,Bit_RESET);
 	}
 }
 
@@ -108,18 +108,18 @@ void TB_B_Rotation_Direction(uint8_t MOTOR_RotationState)
 {
 	if(MOTOR_RotationState == 0)//顺时针
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_3,Bit_SET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_4,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_6,Bit_SET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_7,Bit_RESET);
 	}
 	else if(MOTOR_RotationState == 1)//逆时针
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_3,Bit_RESET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_4,Bit_SET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_6,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_7,Bit_SET);
 	}
 	else if(MOTOR_RotationState == 2)//停止
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_3,Bit_RESET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_4,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_6,Bit_RESET);
+		GPIO_WriteBit(GPIOA,GPIO_Pin_7,Bit_RESET);
 	}
 }
 

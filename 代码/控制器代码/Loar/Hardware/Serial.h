@@ -1,15 +1,14 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#include <stdio.h>
+#include "Command_set.h"
 
-void Serial_Init();
-void Serial_SendByte(uint8_t Byte);//发送单个字节
-void Serial_SendArray(uint8_t *Array, uint16_t Length);//发送数组
-void Serial_SendString(char *String);//发送字符串
-void Serial_SendNumber(uint32_t Number, uint8_t Length);//发送数字
+extern uint8_t Key;
 
-uint8_t Serial_GetRxReturnData(void);//获取串口接收到的数据
-uint8_t Serial_GetRxFlag(void);//串口接收数据标志位
+void Serial_Init(void);//串口初始化
+void Serial_SendByte(uint8_t Byte);//单字节发送
+void Serial_TB_Cmd(void);//按键控制
+uint8_t Serial_GetRxFlag(void);//接收数据标志位查询
+uint8_t Serial_GetRxReturnData(void);//返回串口接收到的数据
 
 #endif

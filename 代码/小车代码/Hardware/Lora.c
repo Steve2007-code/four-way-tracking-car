@@ -74,35 +74,46 @@ typedef enum{
 */
 void USART2_IRQHandler(void)
 {
+	
 	if(USART_GetITStatus(USART2,USART_IT_RXNE) == SET)
 	{
-		if(LoraDataFlag ==0)//收到第一个功能引索
-		LoraFunction = USART_ReceiveData(USART2);
-		LoraDataFlag = 1;
+		if(LoraDataFlag == 0)//功能索引
+		{
+			LoraFunction = USART_ReceiveData(USART2);
+			LoraDataFlag = 1;
+			return;
+		}
 		if(LoraDataFlag == 1)
 		{
-			LoraFunctionSet = USART_ReceiveData(USART2);//收到第一个功能设置
+			LoraFunctionSet = USART_ReceiveData(USART2);//功能设置
 			switch(LoraFunction)
 			{
 				case 01://A电机选择方向设置
 					TB_A_Rotation_Direction(LoraFunctionSet);
+					LoraDataFlag = 0;
 					break;
 				case 02://B电机旋转方向设置
 					TB_B_Rotation_Direction(LoraFunctionSet);
+					LoraDataFlag = 0;
 					break;
 				case 03://总电机启停控制
 					TB_AOx_Cmd(LoraFunctionSet);
+					LoraDataFlag = 0;
 					break;
 				case 04://A电机选择速度
 					TB_PWM_CCRA_Set(LoraFunctionSet);
+					LoraDataFlag = 0;
 					break;
 				case 05://B电机选择速度
 					TB_PWM_CCRB_Set(LoraFunctionSet);
+					LoraDataFlag = 0;
 					break;
 				default://不是合法的功能引索关闭电机
 					TB_AOx_Cmd(MOTOR_stop);
+					LoraDataFlag = 0;
 					break;
 			}
 		}
+		USART_ClearITPendingBit(USART2,USART_IT_RXNE);
 	}
 }
