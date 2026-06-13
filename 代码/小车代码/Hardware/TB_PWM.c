@@ -1,5 +1,18 @@
 #include "stm32f10x.h"                  // Device header
 
+uint8_t CCRA;
+uint8_t CCRB;
+
+void TB_PWM_CCRA_Set(uint8_t CCR)//TIM2 CCR设置（CCR范围 0 ~ 100）
+{
+	TIM_SetCompare2(TIM1,CCR);
+}
+
+void TB_PWM_CCRB_Set(uint8_t CCR)//TIM1 CCR设置（CCR范围 0 ~ 100）
+{
+	TIM_SetCompare1(TIM1,CCR);
+}
+
 void TB_PWM_Init(void)//TB6612初始化
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
@@ -16,8 +29,8 @@ void TB_PWM_Init(void)//TB6612初始化
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIO_InitStruct);//电机启停控制
 	
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4;//TB6612 AIN1 | AIN2 | BIN1 | BIN2
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP; //PA2 PA3留着等串口放lora
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;//TB6612 AIN1 | AIN2 | BIN1 | BIN2
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIO_InitStruct);//电机选择方向
 	
@@ -36,14 +49,14 @@ void TB_PWM_Init(void)//TB6612初始化
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = 30;//CCR
+	TIM_OCInitStruct.TIM_Pulse = CCRB;//CCRB
 	TIM_OC1Init(TIM1,&TIM_OCInitStruct);//CH1配置(PWMB)
 	
 	TIM_OCInitStruct.TIM_OCIdleState = TIM_OCIdleState_Reset;//空闲时低电平
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = 30;//CCR
+	TIM_OCInitStruct.TIM_Pulse = CCRA;//CCRA
 	TIM_OC2Init(TIM1,&TIM_OCInitStruct);//CH2配置(PWMA)
 	
 	TIM_CtrlPWMOutputs(TIM1, ENABLE);//使能TIM1外设的主输出

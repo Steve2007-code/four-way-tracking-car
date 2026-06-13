@@ -22,6 +22,8 @@ typedef enum{
 */
 
 void TB_PWM_Init(void);//TB6612初始化
+void TB_PWM_CCRA_Set(uint8_t CCR);//TIM2 CCR设置（CCR范围 0 ~ 100）
+void TB_PWM_CCRB_Set(uint8_t CCR);//TIM1 CCR设置（CCR范围 0 ~ 100）
 void TB_A_Rotation_Direction(uint8_t MOTOR_RotationState);//A电机旋转方向设置
 void TB_B_Rotation_Direction(uint8_t MOTOR_RotationState);//B电机旋转方向设置
 void TB_AOx_Cmd(uint16_t MOTOR_State);//电机启停控制
