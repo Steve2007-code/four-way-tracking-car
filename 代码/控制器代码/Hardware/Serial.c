@@ -5,9 +5,10 @@
 uint8_t Serial_RxData;		//定义串口接收的数据变量
 uint8_t Serial_RxFlag;		//定义串口接收的标志位变量
 
-uint8_t Key;
-
-uint8_t SpeedA = 50, SpeedB = 50;
+uint8_t RotationA = 1, RotationB = 1;		//电机旋转反向变量
+uint8_t Key;								//按键变量
+uint8_t Power = 0;							//电机是否开启
+uint8_t SpeedA = 50, SpeedB = 50;			//电机A速度 电机B速度
 
 void Serial_Init(void)//串口初始化
 {
@@ -77,6 +78,12 @@ void Serial_Init(void)//串口初始化
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13;//电机 ON | OFF
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB,&GPIO_InitStruct);
+	
+	//电机AB转向设置
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0;//电机A | 电机B
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB,&GPIO_InitStruct);
 }
 
 void Serial_SendByte(uint8_t Byte)//单字节发送
@@ -95,6 +102,7 @@ void Serial_TB_Cmd(void)//按键控制
 		Serial_SendByte(MOTOR_RUN);
 		Delay_ms(10);
 		Key = 1;
+		Power = 1;
 	}
 	if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_13) == SET)//电机关
 	{
@@ -104,7 +112,9 @@ void Serial_TB_Cmd(void)//按键控制
 		Serial_SendByte(MOTOR_STOP);
 		Delay_ms(10);
 		Key = 2;
+		Power = 0;
 	}
+	
 	if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_14) == SET)//速度A+
 	{
 		Delay_ms(10);
@@ -131,6 +141,7 @@ void Serial_TB_Cmd(void)//按键控制
 		}
 		Key = 4;
 	}
+	
 	if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_8) == SET)//速度B+
 	{
 		Delay_ms(10);
@@ -151,11 +162,32 @@ void Serial_TB_Cmd(void)//按键控制
 		if(SpeedB > 0)
 		{
 			Serial_SendByte(E);
-			SpeedB = SpeedB-10;
+			SpeedB -= 10;
 			Serial_SendByte(SpeedB);
 			Delay_ms(10);
 		}
 		Key = 6;
+	}
+	
+		if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_1) == SET)//A电机旋转反向
+	{
+		Delay_ms(10);
+		while(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_1) != RESET);
+		Serial_SendByte(A);
+		RotationA = RotationA ? 0 : 1;//电机反转逻辑
+		Serial_SendByte(RotationA);
+		Delay_ms(10);
+		Key = 7;
+	}
+	if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_0) == SET)//B电机旋转反向
+	{
+		Delay_ms(10);
+		while(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_0) != RESET);
+		Serial_SendByte(B);
+		RotationB = RotationB ? 0 : 1;//电机反转逻辑
+		Serial_SendByte(RotationB);
+		Delay_ms(10);
+		Key = 8;
 	}
 }
 
