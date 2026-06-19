@@ -108,6 +108,14 @@ void USART2_IRQHandler(void)
 					TB_PWM_CCRB_Set(LoraFunctionSet);
 					LoraDataFlag = 0;
 					break;
+				case 06://A电机旋转反向
+					TB_A_Rotation_Direction(LoraFunctionSet);
+					LoraDataFlag = 0;
+					break;
+				case 07://B电机旋转反向
+					TB_B_Rotation_Direction(LoraFunctionSet);
+					LoraDataFlag = 0;
+					break;
 				default://不是合法的功能引索关闭电机
 					TB_AOx_Cmd(MOTOR_stop);
 					LoraDataFlag = 0;
