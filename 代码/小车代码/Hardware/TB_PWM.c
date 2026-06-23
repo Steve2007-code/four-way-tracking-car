@@ -3,12 +3,12 @@
 uint8_t CCRA;
 uint8_t CCRB;
 
-void TB_PWM_CCRA_Set(uint8_t CCR)//TIM2 CCR设置（CCR范围 0 ~ 100）
+void TB_PWM_CCRA_Set(uint8_t CCR)//TIM1_CH2 CCR设置（CCR范围 0 ~ 100）
 {
 	TIM_SetCompare2(TIM1,CCR);
 }
 
-void TB_PWM_CCRB_Set(uint8_t CCR)//TIM1 CCR设置（CCR范围 0 ~ 100）
+void TB_PWM_CCRB_Set(uint8_t CCR)//TIM1_CH1 CCR设置（CCR范围 0 ~ 100）
 {
 	TIM_SetCompare1(TIM1,CCR);
 }
@@ -16,6 +16,7 @@ void TB_PWM_CCRB_Set(uint8_t CCR)//TIM1 CCR设置（CCR范围 0 ~ 100）
 void TB_PWM_Init(void)//TB6612初始化
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1,ENABLE);
 	
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -25,14 +26,19 @@ void TB_PWM_Init(void)//TB6612初始化
 	GPIO_Init(GPIOA,&GPIO_InitStruct);//输出PWMA PWMB配置
 	
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;//TB6612 STBY
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;//TB6612 STBY
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOA,&GPIO_InitStruct);//电机启停控制
+	GPIO_Init(GPIOB,&GPIO_InitStruct);//电机启停控制
 	
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP; //PA2 PA3留着等串口放lora
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;//TB6612 AIN1 | AIN2 | BIN1 | BIN2
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;//TB6612 AIN1 | AIN2 | BIN1 | BIN2
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIO_InitStruct);//电机选择方向
+	
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0;//TB6612 BIN1 | BIN2
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB,&GPIO_InitStruct);//电机选择方向
 	
 	TIM_InternalClockConfig(TIM1);//选择时钟原 内部时钟
 	
@@ -61,11 +67,14 @@ void TB_PWM_Init(void)//TB6612初始化
 	
 	TIM_CtrlPWMOutputs(TIM1, ENABLE);//使能TIM1外设的主输出
 	
-	/*TB6612 STBY默认为不使能*/
-	GPIO_WriteBit(GPIOA,GPIO_Pin_0,Bit_RESET);
+	/*TB6612 STBY默认为不使能(电机关闭)*/
+	GPIO_WriteBit(GPIOA,GPIO_Pin_10,Bit_RESET);
 	/*AO默认顺时针旋转*/
-	GPIO_WriteBit(GPIOA,GPIO_Pin_1,Bit_SET);
-	GPIO_WriteBit(GPIOA,GPIO_Pin_2,Bit_RESET);
+	GPIO_WriteBit(GPIOA,GPIO_Pin_4,Bit_SET);
+	GPIO_WriteBit(GPIOA,GPIO_Pin_5,Bit_RESET);
+	/*BO默认顺时针旋转*/
+	GPIO_WriteBit(GPIOB,GPIO_Pin_0,Bit_SET);
+	GPIO_WriteBit(GPIOB,GPIO_Pin_1,Bit_RESET);
 	
 	TIM_Cmd(TIM1,ENABLE);//使能TIM1
 }
@@ -108,18 +117,18 @@ void TB_B_Rotation_Direction(uint8_t MOTOR_RotationState)
 {
 	if(MOTOR_RotationState == 0)//顺时针
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_6,Bit_SET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_7,Bit_RESET);
+		GPIO_WriteBit(GPIOB,GPIO_Pin_0,Bit_SET);
+		GPIO_WriteBit(GPIOB,GPIO_Pin_1,Bit_RESET);
 	}
 	else if(MOTOR_RotationState == 1)//逆时针
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_6,Bit_RESET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_7,Bit_SET);
+		GPIO_WriteBit(GPIOB,GPIO_Pin_0,Bit_RESET);
+		GPIO_WriteBit(GPIOB,GPIO_Pin_1,Bit_SET);
 	}
 	else if(MOTOR_RotationState == 2)//停止
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_6,Bit_RESET);
-		GPIO_WriteBit(GPIOA,GPIO_Pin_7,Bit_RESET);
+		GPIO_WriteBit(GPIOB,GPIO_Pin_0,Bit_RESET);
+		GPIO_WriteBit(GPIOB,GPIO_Pin_1,Bit_RESET);
 	}
 }
 
@@ -128,10 +137,10 @@ void TB_AOx_Cmd(uint16_t MOTOR_State)
 {
 	if(MOTOR_State == 0)// 停止
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_0,Bit_RESET);
+		GPIO_WriteBit(GPIOB,GPIO_Pin_10,Bit_RESET);
 	}
 	else if(MOTOR_State == 1)// 运行
 	{
-		GPIO_WriteBit(GPIOA,GPIO_Pin_0,Bit_SET);
+		GPIO_WriteBit(GPIOB,GPIO_Pin_10,Bit_SET);
 	}
 }
