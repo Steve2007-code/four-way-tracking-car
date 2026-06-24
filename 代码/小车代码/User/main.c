@@ -19,9 +19,11 @@ int main()
 	
 	while(1)
 	{
-		OLED_ShowString(1,1,"Hello Word!");
+		//OLED_ShowString(1,1,"Hello Word!");
 		Motor_State_F();
-		OLED_ShowNum(2,1,LoraFunction,2);
-		OLED_ShowNum(2,4,LoraFunctionSet,2);
+		//OLED_ShowSignedNum(2,1,LoraFunction,2);
+		//OLED_ShowSignedNum(2,5,LoraFunctionSet,2);
+		OLED_ShowSignedNum(3,1,TIM_GetCapture1(TIM1),3);
+		OLED_ShowSignedNum(3,6,TIM_GetCapture2(TIM1),3);
 	}
 }

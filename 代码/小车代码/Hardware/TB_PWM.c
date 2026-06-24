@@ -55,14 +55,14 @@ void TB_PWM_Init(void)//TB6612初始化
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = 40;//CCRB
+	TIM_OCInitStruct.TIM_Pulse = 17;//CCRB
 	TIM_OC1Init(TIM1,&TIM_OCInitStruct);//CH1配置(PWMB)
 	
 	TIM_OCInitStruct.TIM_OCIdleState = TIM_OCIdleState_Reset;//空闲时低电平
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = 40;//CCRA
+	TIM_OCInitStruct.TIM_Pulse = 17;//CCRA
 	TIM_OC2Init(TIM1,&TIM_OCInitStruct);//CH2配置(PWMA)
 	
 	TIM_CtrlPWMOutputs(TIM1, ENABLE);//使能TIM1外设的主输出
