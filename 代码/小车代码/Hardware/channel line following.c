@@ -5,9 +5,9 @@
 
 void Channel_Line_Following_Init(void)		//4路循迹模块初始化
 {
-	//GPIOB开启设置
+	//GPIOB AFIO开启设置
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
-	RCC_AHBPeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
 	
 	//4路循迹GPIOB初始化
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -48,19 +48,19 @@ void EXTI15_10_IRQHandler(void)
 		Channel_12 = GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12);
 		EXTI_ClearITPendingBit(EXTI_Line12);
 	}
-	if(EXTI_GetITStatus(EXTI_Line12) == SET)
-	{
-		Channel_13 = GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12);
-		EXTI_ClearITPendingBit(EXTI_Line13);
-	}
 	if(EXTI_GetITStatus(EXTI_Line13) == SET)
 	{
-		Channel_14 = GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12);
-		EXTI_ClearITPendingBit(EXTI_Line14);
+		Channel_13 = GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_13);
+		EXTI_ClearITPendingBit(EXTI_Line13);
 	}
 	if(EXTI_GetITStatus(EXTI_Line14) == SET)
 	{
-		Channel_15 = GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12);
+		Channel_14 = GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_14);
+		EXTI_ClearITPendingBit(EXTI_Line14);
+	}
+	if(EXTI_GetITStatus(EXTI_Line15) == SET)
+	{
+		Channel_15 = GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_15);
 		EXTI_ClearITPendingBit(EXTI_Line15);
 	}
 }
@@ -77,19 +77,25 @@ void Channel_Line_Following_Speed(void)
 		OldCCRA = CCRA;
 		OldCCRB = CCRB;
 	}
+	else 
+		Motor_State = 0;
 	if(Channel_13 == 1 && Channel_14 == 1)//直行
 	{
 		Motor_State = 1;
 	}
+	else 
+		Motor_State = 0;
 	if(Channel_13 == 1 && Channel_14 == 0)//右转
 	{
 		Motor_State = 2;
 	}
+	else 
+		Motor_State = 0;
 	if(Channel_13 == 0 && Channel_14 == 1)//左转
 	{
 		Motor_State = 3;
 	}
-	else
+	else 
 		Motor_State = 0;
 }
 

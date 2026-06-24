@@ -68,7 +68,7 @@ void TB_PWM_Init(void)//TB6612初始化
 	TIM_CtrlPWMOutputs(TIM1, ENABLE);//使能TIM1外设的主输出
 	
 	/*TB6612 STBY默认为不使能(电机关闭)*/
-	GPIO_WriteBit(GPIOA,GPIO_Pin_10,Bit_RESET);
+	GPIO_WriteBit(GPIOB,GPIO_Pin_10,Bit_RESET);
 	/*AO默认顺时针旋转*/
 	GPIO_WriteBit(GPIOA,GPIO_Pin_4,Bit_SET);
 	GPIO_WriteBit(GPIOA,GPIO_Pin_5,Bit_RESET);
