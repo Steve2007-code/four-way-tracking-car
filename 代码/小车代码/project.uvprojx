@@ -700,6 +700,16 @@
               <FileType>5</FileType>
               <FilePath>.\Hardware\Lora.h</FilePath>
             </File>
+            <File>
+              <FileName>channel line following.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\channel line following.c</FilePath>
+            </File>
+            <File>
+              <FileName>channel line following.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\channel line following.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

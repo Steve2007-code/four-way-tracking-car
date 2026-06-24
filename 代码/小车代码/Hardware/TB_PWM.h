@@ -1,6 +1,9 @@
 #ifndef __TB_PWM_H__
 #define __TB_PWM_H__
 
+extern uint8_t CCRA;//A电机PWM占空比
+extern uint8_t CCRB;//B电机PWM占空比
+
 //电机状态枚举
 typedef enum {
     MOTOR_STOP = 0,    // 停止

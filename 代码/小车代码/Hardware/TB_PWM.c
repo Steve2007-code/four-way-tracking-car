@@ -1,7 +1,7 @@
 #include "stm32f10x.h"                  // Device header
 
-uint8_t CCRA;
-uint8_t CCRB;
+uint8_t CCRA;//A电机PWM占空比
+uint8_t CCRB;//B电机PWM占空比
 
 void TB_PWM_CCRA_Set(uint8_t CCR)//TIM1_CH2 CCR设置（CCR范围 0 ~ 100）
 {
